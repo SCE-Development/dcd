@@ -3,10 +3,14 @@ import re
 from contextlib import contextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
+from prometheus_client import Counter, generate_latest
 
 app = FastAPI(title="Door Code Distributor")
+
+DOOR_CODE_SUCCESS = Counter("get_door_code_success_total", "Successful door code distributions")
+DOOR_CODE_FAILURE = Counter("get_door_code_failure_total", "Failed door code distributions")
 
 DB_PATH = Path(__file__).parent / "codes.db"
 
@@ -94,6 +98,13 @@ def get_door_code():
         conn.commit()
 
         if row is None:
+            DOOR_CODE_FAILURE.inc()
             raise HTTPException(status_code=404, detail="No codes available")
 
+    DOOR_CODE_SUCCESS.inc()
     return DoorCodeResponse(code=row[0])
+
+
+@app.get("/metrics")
+def metrics():
+    return Response(content=generate_latest(), media_type="text/plain")

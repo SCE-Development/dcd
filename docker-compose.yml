@@ -1,0 +1,10 @@
+services:
+  api:
+    build: .
+    ports:
+      - "5999:5999"
+    volumes:
+      - db-data:/app/data
+
+volumes:
+  db-data:

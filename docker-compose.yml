@@ -1,10 +1,15 @@
 services:
-  api:
+  dcd:
     build: .
     ports:
       - "5999:5999"
     volumes:
-      - db-data:/app/data
+      - data:/app/data
+
+networks:
+  default:
+    external: true
+    name: sce
 
 volumes:
-  db-data:
+  data:

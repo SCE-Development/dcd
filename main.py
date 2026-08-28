@@ -12,7 +12,7 @@ app = FastAPI(title="Door Code Distributor")
 DOOR_CODE_SUCCESS = Counter("get_door_code_success_total", "Successful door code distributions")
 DOOR_CODE_FAILURE = Counter("get_door_code_failure_total", "Failed door code distributions")
 
-DB_PATH = Path(__file__).parent / "codes.db"
+DB_PATH = Path("/app/data/codes.db")
 
 
 @contextmanager
@@ -103,6 +103,15 @@ def get_door_code():
 
     DOOR_CODE_SUCCESS.inc()
     return DoorCodeResponse(code=row[0])
+
+
+@app.delete("/clearCodes")
+def clear_all_codes():
+    with get_db() as conn:
+        result = conn.execute("DELETE FROM codes")
+        conn.commit()
+
+    return {"deleted": result.rowcount}
 
 
 @app.get("/metrics")

@@ -105,15 +105,6 @@ def get_door_code():
     return DoorCodeResponse(code=row[0])
 
 
-@app.delete("/clearCodes")
-def clear_all_codes():
-    with get_db() as conn:
-        result = conn.execute("DELETE FROM codes")
-        conn.commit()
-
-    return {"deleted": result.rowcount}
-
-
 @app.get("/metrics")
 def metrics():
     return Response(content=generate_latest(), media_type="text/plain")
